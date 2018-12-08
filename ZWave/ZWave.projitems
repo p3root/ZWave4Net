@@ -104,6 +104,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)CommandClasses\WakeUpReport.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConfigurationValueAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Deferral.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DeviceNotOpenedException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Devices\Aeon\MultiSensor6.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Devices\Aeon\MultiSensor4.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Devices\AssociationGroup.cs" />

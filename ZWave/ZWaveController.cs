@@ -18,6 +18,7 @@ namespace ZWave
         public readonly ZWaveChannel Channel;
         public event EventHandler<ErrorEventArgs> Error;
         public event EventHandler ChannelClosed;
+        private bool _isOpened;
 
         private ZWaveController(ZWaveChannel channel)
         {
@@ -60,6 +61,7 @@ namespace ZWave
             Channel.Error += Channel_Error;
             Channel.Closed += Channel_Closed;
             Channel.Open();
+            _isOpened = true;
         }
 
         private void Channel_Error(object sender, ErrorEventArgs e)
@@ -112,6 +114,7 @@ namespace ZWave
             Channel.NodeEventReceived -= Channel_NodeEventReceived;
             Channel.NodeUpdateReceived -= Channel_NodeUpdateReceived;
             Channel.Close();
+            _isOpened = false;
         }
 
         public Task<string> GetVersion()
@@ -119,8 +122,17 @@ namespace ZWave
             return GetVersion(CancellationToken.None);
         }
 
+        private void CheckIfOpen()
+        {
+            if (!_isOpened)
+            {
+                throw new DeviceNotOpenedException();
+            }
+        }
+
         public async Task<string> GetVersion(CancellationToken cancellationToken)
         {
+            CheckIfOpen();
             if (_version == null)
             {
                 var response = await Channel.Send(Function.GetVersion, cancellationToken);
@@ -137,6 +149,7 @@ namespace ZWave
 
         public async Task<uint> GetHomeID(CancellationToken cancellationToken)
         {
+            CheckIfOpen();
             if (_homeID == null)
             {
                 var response = await Channel.Send(Function.MemoryGetId, cancellationToken);
@@ -152,6 +165,7 @@ namespace ZWave
 
         public async Task<byte> GetNodeID(CancellationToken cancellationToken)
         {
+            CheckIfOpen();
             if (_nodeID == null)
             {
                 var response = await Channel.Send(Function.MemoryGetId, cancellationToken);
@@ -167,6 +181,7 @@ namespace ZWave
 
         public Task<NodeCollection> DiscoverNodes(CancellationToken cancellationToken)
         {
+            CheckIfOpen();
             return _getNodes = Task.Run(async () =>
             {
                 var response = await Channel.Send(Function.DiscoveryNodes, cancellationToken);
@@ -193,6 +208,7 @@ namespace ZWave
 
         public async Task<NodeCollection> GetNodes(CancellationToken cancellationToken)
         {
+            CheckIfOpen();
             return await (_getNodes ?? (_getNodes = DiscoverNodes(cancellationToken)));
         }
     }
